@@ -108,7 +108,7 @@ export default function App() {
             <p>Uniform beam properties</p>
           </div>
           <div className="setup-grid">
-            <NumberField label="Truss length" value={model.length} unit="m" min={0.001} onChange={(length) => patchModel({ length })} />
+            <NumberField label="Truss length" value={model.length} unit="m" min={0.1} step={0.1} onChange={(length) => patchModel({ length })} />
             <NumberField label="Linear mass" value={model.massPerMeter} unit="kg/m" min={0} onChange={(massPerMeter) => patchModel({ massPerMeter })} />
             <div className="derived-field">
               <span>Total truss mass</span>
@@ -140,7 +140,7 @@ export default function App() {
                 <div className="data-row load-row" key={load.id}>
                   <span className="row-index">{String(index + 1).padStart(2, '0')}</span>
                   <label className="field text-field"><span>Name</span><input value={load.name} onChange={(event) => patchModel({ loads: model.loads.map((item) => item.id === load.id ? { ...item, name: event.target.value } : item) })} /></label>
-                  <NumberField compact label="Position" value={load.position} unit="m" min={0} max={model.length} onChange={(position) => patchModel({ loads: model.loads.map((item) => item.id === load.id ? { ...item, position } : item) })} />
+                  <NumberField compact label="Position" value={load.position} unit="m" min={0} max={model.length} step={0.1} onChange={(position) => patchModel({ loads: model.loads.map((item) => item.id === load.id ? { ...item, position } : item) })} />
                   <NumberField compact label="Mass" value={load.massKg} unit="kg" min={0} onChange={(massKg) => patchModel({ loads: model.loads.map((item) => item.id === load.id ? { ...item, massKg } : item) })} />
                   <button className="icon-button" aria-label={`Remove ${load.name}`} onClick={() => patchModel({ loads: model.loads.filter((item) => item.id !== load.id) })}>×</button>
                 </div>
@@ -161,7 +161,7 @@ export default function App() {
                 <div className="data-row hanger-row" key={hanger.id}>
                   <span className="hanger-dot" aria-hidden="true" />
                   <strong className="hanger-name">Hanger {index + 1}</strong>
-                  <NumberField compact label="Position" value={hanger.position} unit="m" min={0} max={model.length} onChange={(position) => patchModel({ hangers: model.hangers.map((item) => item.id === hanger.id ? { ...item, position } : item) })} />
+                  <NumberField compact label="Position" value={hanger.position} unit="m" min={0} max={model.length} step={0.1} onChange={(position) => patchModel({ hangers: model.hangers.map((item) => item.id === hanger.id ? { ...item, position } : item) })} />
                   <div className={`reaction ${hangerResult?.slack ? 'slack' : ''}`}>
                     <span>{hangerResult?.slack ? 'Slack' : 'Reaction'}</span>
                     <strong>{hangerResult ? format(hangerResult.reactionN / 1000, 2) : '—'} kN</strong>
@@ -197,13 +197,13 @@ export default function App() {
   )
 }
 
-interface NumberFieldProps { label: string; value: number; unit: string; min?: number; max?: number; compact?: boolean; onChange: (value: number) => void }
+interface NumberFieldProps { label: string; value: number; unit: string; min?: number; max?: number; step?: number | 'any'; compact?: boolean; onChange: (value: number) => void }
 
-function NumberField({ label, value, unit, min, max, compact, onChange }: NumberFieldProps) {
+function NumberField({ label, value, unit, min, max, step = 'any', compact, onChange }: NumberFieldProps) {
   return (
     <label className={`field number-field ${compact ? 'compact' : ''}`}>
       <span>{label}</span>
-      <div><input type="number" step="any" value={value} min={min} max={max} onChange={(event) => onChange(Number(event.target.value))} /><b>{unit}</b></div>
+      <div><input type="number" step={step} value={value} min={min} max={max} onChange={(event) => onChange(Number(event.target.value))} /><b>{unit}</b></div>
     </label>
   )
 }
