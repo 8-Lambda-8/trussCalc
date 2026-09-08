@@ -13,6 +13,8 @@ export interface Hanger {
 export interface TrussModel {
   length: number
   massPerMeter: number
+  reportTitle: string
+  reportNotes: string
   loads: PointLoad[]
   hangers: Hanger[]
 }

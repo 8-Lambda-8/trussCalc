@@ -8,6 +8,8 @@ export function serializeModel(model: TrussModel): string {
   params.set('v', '1')
   params.set('length', String(model.length))
   params.set('massPerMeter', String(model.massPerMeter))
+  params.set('reportTitle', model.reportTitle)
+  params.set('reportNotes', model.reportNotes)
   params.set('loads', JSON.stringify(model.loads.map(({ name, position, massKg }) => ({ name, position, massKg }))))
   params.set('hangers', JSON.stringify(model.hangers.map(({ position }) => position)))
   return params.toString()
@@ -26,6 +28,8 @@ export function parseModel(search: string): { model: TrussModel; warning: string
     const model: TrussModel = {
       length: Number(required(params, 'length')),
       massPerMeter: Number(required(params, 'massPerMeter')),
+      reportTitle: params.get('reportTitle') ?? '',
+      reportNotes: params.get('reportNotes') ?? '',
       loads: storedLoads.map((load) => ({
         id: makeId('load'),
         name: String(load.name),

@@ -7,6 +7,8 @@ describe('URL state', () => {
     const model: TrussModel = {
       length: 12.5,
       massPerMeter: 8.75,
+      reportTitle: 'Arena roof',
+      reportNotes: 'Verify with rigger.',
       loads: [{ id: 'local', name: 'Bühne 🎵', position: 3.2, massKg: 123.4 }],
       hangers: [{ id: 'one', position: 1 }, { id: 'two', position: 11.5 }],
     }
@@ -15,6 +17,8 @@ describe('URL state', () => {
     expect(parsed.model).toMatchObject({
       length: model.length,
       massPerMeter: model.massPerMeter,
+      reportTitle: 'Arena roof',
+      reportNotes: 'Verify with rigger.',
       loads: [{ name: 'Bühne 🎵', position: 3.2, massKg: 123.4 }],
       hangers: [{ position: 1 }, { position: 11.5 }],
     })
@@ -24,5 +28,12 @@ describe('URL state', () => {
     const parsed = parseModel('?v=1&length=nope&loads=[]&hangers=[]')
     expect(parsed.warning).toBeTruthy()
     expect(parsed.model.length).toBe(10)
+  })
+
+  it('keeps version-one links without report metadata compatible', () => {
+    const parsed = parseModel('?v=1&length=10&massPerMeter=7.5&loads=[]&hangers=%5B0%2C10%5D')
+    expect(parsed.warning).toBeNull()
+    expect(parsed.model.reportTitle).toBe('')
+    expect(parsed.model.reportNotes).toBe('')
   })
 })

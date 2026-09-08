@@ -6,6 +6,8 @@ function model(overrides: Partial<TrussModel> = {}): TrussModel {
   return {
     length: 10,
     massPerMeter: 0,
+    reportTitle: '',
+    reportNotes: '',
     loads: [],
     hangers: [{ id: 'a', position: 0 }, { id: 'b', position: 10 }],
     ...overrides,

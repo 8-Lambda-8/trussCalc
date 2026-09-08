@@ -10,6 +10,8 @@ export function defaultModel(): TrussModel {
   return {
     length: 10,
     massPerMeter: 7.5,
+    reportTitle: '',
+    reportNotes: '',
     loads: [],
     hangers: [
       { id: makeId('hanger'), position: 0 },
@@ -22,6 +24,8 @@ export function validateModel(model: TrussModel): string[] {
   const errors: string[] = []
   if (!Number.isFinite(model.length) || model.length <= 0) errors.push('Truss length must be greater than zero.')
   if (!Number.isFinite(model.massPerMeter) || model.massPerMeter < 0) errors.push('Truss mass per metre cannot be negative.')
+  if (model.reportTitle.length > 100) errors.push('Report title cannot exceed 100 characters.')
+  if (model.reportNotes.length > 2000) errors.push('Report notes cannot exceed 2,000 characters.')
 
   model.loads.forEach((load, index) => {
     if (!load.name.trim()) errors.push(`Load ${index + 1} needs a name.`)

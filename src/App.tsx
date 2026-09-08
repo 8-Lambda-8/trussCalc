@@ -11,6 +11,8 @@ export default function App() {
   const [model, setModel] = useState<TrussModel>(initial.model)
   const [linkWarning, setLinkWarning] = useState<string | null>(initial.warning)
   const [copied, setCopied] = useState(false)
+  const [generatingPdf, setGeneratingPdf] = useState(false)
+  const [pdfError, setPdfError] = useState<string | null>(null)
   const errors = useMemo(() => validateModel(model), [model])
   const result = useMemo(() => errors.length ? null : calculateTruss(model), [model, errors.length])
 
@@ -36,6 +38,42 @@ export default function App() {
     setModel(defaultModel())
   }
 
+  const exportPdf = async () => {
+    if (!result || errors.length || generatingPdf) return
+    setGeneratingPdf(true)
+    setPdfError(null)
+    const reportWindow = window.open('', '_blank')
+    if (reportWindow) {
+      reportWindow.opener = null
+      reportWindow.document.title = 'Generating truss report…'
+      reportWindow.document.body.innerHTML = '<p style="font:16px system-ui;padding:24px">Generating truss report…</p>'
+    }
+    try {
+      const { generatePdfReport } = await import('./pdfReport')
+      const { blob, filename } = await generatePdfReport(model, result, {
+        sourceUrl: window.location.href,
+        generatedAt: new Date(),
+      })
+      const blobUrl = URL.createObjectURL(blob)
+      if (reportWindow) {
+        reportWindow.location.replace(blobUrl)
+      } else {
+        const link = document.createElement('a')
+        link.href = blobUrl
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+      }
+      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000)
+    } catch (error) {
+      reportWindow?.close()
+      setPdfError(error instanceof Error ? error.message : 'The PDF could not be generated.')
+    } finally {
+      setGeneratingPdf(false)
+    }
+  }
+
   return (
     <main>
       <header className="hero shell">
@@ -45,15 +83,17 @@ export default function App() {
           <p className="intro">Place the weight. Set the hangers. See how the load travels.</p>
         </div>
         <div className="header-actions">
-          <button className="button secondary" onClick={copyLink} disabled={errors.length > 0}>{copied ? 'Link copied' : 'Copy link'}</button>
+          <button className="button secondary" onClick={exportPdf} disabled={!result || errors.length > 0 || generatingPdf}>{generatingPdf ? 'Generating…' : 'Export PDF'}</button>
+          <button className="button outline" onClick={copyLink} disabled={errors.length > 0}>{copied ? 'Link copied' : 'Copy link'}</button>
           <button className="button ghost" onClick={reset}>Reset</button>
         </div>
       </header>
 
       <div className="shell workspace">
-        {(linkWarning || errors.length > 0 || result?.warning) && (
+        {(linkWarning || pdfError || errors.length > 0 || result?.warning) && (
           <div className="alerts" role="alert">
             {linkWarning && <p>{linkWarning}</p>}
+            {pdfError && <p>PDF export failed: {pdfError}</p>}
             {errors.map((error) => <p key={error}>{error}</p>)}
             {result?.warning && <p>{result.warning}</p>}
           </div>
@@ -74,6 +114,16 @@ export default function App() {
               <span>Total truss mass</span>
               <strong>{format(model.length * model.massPerMeter, 1)} <small>kg</small></strong>
             </div>
+          </div>
+          <div className="report-fields">
+            <label className="field text-field">
+              <span>Report title <small>optional</small></span>
+              <input maxLength={100} placeholder="Truss Load Report" value={model.reportTitle} onChange={(event) => patchModel({ reportTitle: event.target.value })} />
+            </label>
+            <label className="field text-field">
+              <span>Report notes <small>optional · {model.reportNotes.length}/2000</small></span>
+              <textarea maxLength={2000} placeholder="Project details, assumptions, or review notes…" value={model.reportNotes} onChange={(event) => patchModel({ reportNotes: event.target.value })} />
+            </label>
           </div>
         </section>
 
