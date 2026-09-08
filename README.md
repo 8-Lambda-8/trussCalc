@@ -4,6 +4,8 @@ A browser-based planning tool for estimating vertical load distribution across m
 
 Define the truss length and linear mass, add point loads and hanging points, and inspect the calculated reactions, center of mass, and maximum bending moment. The complete setup is stored in the URL, making configurations easy to bookmark and share.
 
+> **Development disclosure:** This project was created with OpenAI Codex. Its source code, calculations, and documentation should be independently reviewed before being relied upon.
+
 ## Features
 
 - Uniform truss self-weight in `kg/m`
