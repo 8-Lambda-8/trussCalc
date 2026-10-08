@@ -52,6 +52,36 @@ npm run test:watch # Run tests in watch mode
 
 The production build is written to `dist/`.
 
+## Docker
+
+Build and run the production container with Docker Compose:
+
+```bash
+docker compose up --build -d
+```
+
+Open the application at:
+
+```text
+http://localhost:3300/truss/
+```
+
+Check its status or stop it with:
+
+```bash
+docker compose ps
+docker compose down
+```
+
+To use Docker without Compose:
+
+```bash
+docker build -t truss-calculator .
+docker run --rm -p 3300:80 truss-calculator
+```
+
+The image uses a Node build stage followed by a small Nginx runtime. Nginx redirects `/` to `/truss/`, serves the single-page application under its configured subpath, and exposes `/healthz` for container health checks.
+
 ## Deployment
 
 The application is configured for the `/truss/` subpath through Vite's `base` setting. Serve the contents of `dist/` so that `dist/index.html` is available at `/truss/` and its assets are available at `/truss/assets/`.

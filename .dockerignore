@@ -1,0 +1,12 @@
+.git
+.gitignore
+.agents
+.codex
+node_modules
+dist
+coverage
+*.log
+*.tsbuildinfo
+.env
+.env.*
+codexResume.sh
