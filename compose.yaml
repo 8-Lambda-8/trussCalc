@@ -1,8 +1,18 @@
+x-app-config:
+  subpath: &app-subpath /truss
+  port: &app-port 3300
+
 services:
   truss-calculator:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        APP_SUBPATH: *app-subpath
+    environment:
+      APP_SUBPATH: *app-subpath
     ports:
-      - "3300:80"
+      - target: 80
+        published: *app-port
+        protocol: tcp
     restart: unless-stopped

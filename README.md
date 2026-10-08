@@ -82,6 +82,16 @@ docker run --rm -p 3300:80 truss-calculator
 
 The image uses a Node build stage followed by a small Nginx runtime. Nginx redirects `/` to `/truss/`, serves the single-page application under its configured subpath, and exposes `/healthz` for container health checks.
 
+The public port and application subpath are configured once at the top of `compose.yaml`:
+
+```yaml
+x-app-config:
+  subpath: &app-subpath /truss
+  port: &app-port 3300
+```
+
+Change those two values before rebuilding to host the application at a different port or subpath. The subpath must start with `/` and must not end with `/`; Compose passes it to both the Vite build and the Nginx runtime.
+
 ## Deployment
 
 The application is configured for the `/truss/` subpath through Vite's `base` setting. Serve the contents of `dist/` so that `dist/index.html` is available at `/truss/` and its assets are available at `/truss/assets/`.

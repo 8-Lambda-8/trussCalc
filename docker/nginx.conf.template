@@ -6,21 +6,21 @@ server {
     root /usr/share/nginx/html;
 
     location = / {
-        return 302 /truss/;
+        return 302 ${APP_SUBPATH}/;
     }
 
-    location = /truss {
-        return 301 /truss/;
+    location = ${APP_SUBPATH} {
+        return 301 ${APP_SUBPATH}/;
     }
 
-    location /truss/assets/ {
+    location ${APP_SUBPATH}/assets/ {
         try_files $uri =404;
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
 
-    location /truss/ {
-        try_files $uri $uri/ /truss/index.html;
+    location ${APP_SUBPATH}/ {
+        try_files $uri $uri/ ${APP_SUBPATH}/index.html;
     }
 
     location = /healthz {
